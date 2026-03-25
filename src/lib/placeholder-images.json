@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "romantic-couple",
+      "description": "A silhouette of a romantic couple against a soft pink sunset.",
+      "imageUrl": "https://picsum.photos/seed/love1/800/600",
+      "imageHint": "romantic couple"
+    },
+    {
+      "id": "heart-shaped-balloons",
+      "description": "Pink and red heart-shaped balloons floating in the air.",
+      "imageUrl": "https://picsum.photos/seed/love2/800/600",
+      "imageHint": "heart balloons"
+    }
+  ]
 }

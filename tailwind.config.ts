@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -10,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Literata', 'serif'],
+        headline: ['Literata', 'serif'],
         code: ['monospace'],
       },
       colors: {
@@ -88,10 +89,29 @@ export default {
             height: '0',
           },
         },
+        'float': {
+          '0%': { transform: 'translateY(110vh) scale(0.5)', opacity: '0' },
+          '10%': { opacity: '0.8' },
+          '90%': { opacity: '0.8' },
+          '100%': { transform: 'translateY(-20vh) scale(1.2)', opacity: '0' },
+        },
+        'heart-beat': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.1)' },
+        },
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(10px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'float-slow': 'float 15s linear infinite',
+        'float-med': 'float 10s linear infinite',
+        'float-fast': 'float 7s linear infinite',
+        'heart-beat': 'heart-beat 1.5s ease-in-out infinite',
+        'fade-in': 'fade-in 0.8s ease-out forwards',
       },
     },
   },
