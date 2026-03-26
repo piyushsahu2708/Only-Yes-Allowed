@@ -19,7 +19,7 @@ const AYUSHI_COMPLIMENTS = [
   "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
 ];
 
-// Updated to use the reliable GitHub raw link
+// Updated to use the reliable GitHub raw link provided by the user
 const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
 
 export default function Home() {
@@ -132,15 +132,15 @@ export default function Home() {
                <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
             </div>
 
-            {/* Video Container */}
-            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8">
+            {/* Video Container - Changed aspect-video to a more flexible min-height and max-height */}
+            <div className="relative w-full max-w-3xl min-h-[400px] max-h-[70vh] rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 flex items-center justify-center">
               
-              {/* Native Video Player */}
+              {/* Native Video Player - Changed object-cover to object-contain to prevent cropping */}
               <video 
                 ref={videoRef}
                 id="loveVideo"
                 className={cn(
-                  "w-full h-full object-cover transition-opacity duration-1000",
+                  "w-full h-full max-h-[70vh] object-contain transition-opacity duration-1000",
                   isStarted ? "opacity-100" : "opacity-0"
                 )}
                 onCanPlayThrough={() => setIsVideoLoading(false)}
