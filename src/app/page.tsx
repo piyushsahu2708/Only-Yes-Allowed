@@ -1,199 +1,149 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { FloatingHearts } from '@/components/floating-hearts';
-import { ProposalInteractive } from '@/components/proposal-interactive';
-import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Loader2, PlayCircle, ExternalLink } from 'lucide-react';
+import { LiquidBackground } from '@/components/liquid-background';
+import { CursorSparkles } from '@/components/cursor-sparkles';
+import { HeartParticles } from '@/components/heart-particles';
 import { HeartExplosion } from '@/components/heart-explosion';
+import { Button } from '@/components/ui/button';
+import { Heart, PlayCircle, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Step = 'welcome' | 'compliments' | 'proposal' | 'success';
+type Step = 'welcome' | 'proposal' | 'success';
 
-const AYUSHI_COMPLIMENTS = [
-  "Ayushi, tumhara naam hi itna pyara hai ❤️",
-  "Tumhari eyes bilkul ocean jaisi gehri aur beautiful hain 🌊",
-  "Tumhari smile meri duniya roshan kar deti hai ✨",
-  "Tumhari lips itne soft aur cute hain 💋",
-  "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
-];
-
-// Updated to use the reliable GitHub raw link provided by the user
 const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
 
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
-  const [complimentIndex, setComplimentIndex] = useState(0);
-  const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
-  const [videoError, setVideoError] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+  const [hasMovedNo, setHasMovedNo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const nextCompliment = () => {
-    if (complimentIndex < AYUSHI_COMPLIMENTS.length - 1) {
-      setComplimentIndex(complimentIndex + 1);
-    } else {
-      setStep('proposal');
-    }
+  const moveNoButton = () => {
+    const x = Math.random() * (window.innerWidth - 150);
+    const y = Math.random() * (window.innerHeight - 100);
+    setNoButtonPos({ x, y });
+    setHasMovedNo(true);
   };
 
   const handleStartMemory = () => {
     if (videoRef.current) {
-      setIsVideoLoading(false);
       videoRef.current.muted = false;
-      videoRef.current.play()
-        .then(() => {
-          setIsStarted(true);
-        })
-        .catch(err => {
-          console.error("Video play failed:", err);
-          // Failsafe: if play fails, still try to show controls and mark as started
-          setIsStarted(true);
-        });
+      videoRef.current.play().then(() => setIsStarted(true));
     }
   };
 
-  useEffect(() => {
-    // Failsafe: Always hide loader after 3 seconds in the success screen
-    if (step === 'success') {
-      const timer = setTimeout(() => {
-        setIsVideoLoading(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [step]);
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden font-body bg-[#FFF0F6]">
-      <FloatingHearts />
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none">
+      <LiquidBackground />
+      <HeartParticles />
+      <CursorSparkles />
 
-      <div className="w-full max-w-4xl z-10 relative px-4 text-center">
+      <div className="z-10 w-full max-w-2xl text-center space-y-12 transition-all duration-1000">
         
         {step === 'welcome' && (
-          <div className="space-y-8 animate-fade-in flex flex-col items-center">
-            <div className="bg-white p-6 rounded-full shadow-2xl animate-heart-beat">
-               <Heart size={80} fill="#FF69B4" className="text-primary" />
+          <div className="animate-fade-in space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-7xl font-bold text-white romantic-text-glow leading-tight">
+                You are the most beautiful part of my life ❤️
+              </h1>
+              <p className="text-2xl md:text-3xl text-pink-700/80 font-medium italic">
+                Your eyes are like the ocean, your smile is my peace 💕
+              </p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-primary">
-              Hey Beautiful Ayushi 💖
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-md mx-auto">
-              I have something special to tell you...
-            </p>
+            
             <Button 
-              onClick={() => setStep('compliments')}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 rounded-full h-14 px-10 text-xl shadow-xl transition-all active:scale-95"
+              onClick={() => setStep('proposal')}
+              className="bg-white/80 backdrop-blur-md text-pink-500 hover:bg-white hover:scale-110 transition-all rounded-full px-12 py-8 text-2xl shadow-xl border-2 border-pink-200"
             >
               Click to continue ❤️
             </Button>
           </div>
         )}
 
-        {step === 'compliments' && (
-          <div key={complimentIndex} className="space-y-12 animate-fade-in flex flex-col items-center">
-            <p className="text-3xl md:text-5xl font-medium text-romantic-gradient leading-relaxed italic p-8">
-              "{AYUSHI_COMPLIMENTS[complimentIndex]}"
-            </p>
-            <Button
-              onClick={nextCompliment}
-              size="lg"
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary/10 rounded-full px-8"
-            >
-              {complimentIndex === AYUSHI_COMPLIMENTS.length - 1 ? "I have a question... 💍" : "Next ❤️"}
-            </Button>
-          </div>
-        )}
-
         {step === 'proposal' && (
-          <div className="animate-fade-in">
-            <ProposalInteractive onAccept={() => setStep('success')} />
+          <div className="animate-fade-in space-y-12">
+            <h2 className="text-6xl md:text-8xl font-bold text-white romantic-text-glow animate-heart-beat">
+              Do you love me? 💖
+            </h2>
+            
+            <div className="flex flex-wrap items-center justify-center gap-8 relative min-h-[200px]">
+              <Button
+                onClick={() => setStep('success')}
+                className="bg-pink-400 hover:bg-pink-500 text-white rounded-full px-16 py-10 text-4xl shadow-2xl transition-all hover:scale-125 active:scale-95"
+              >
+                YES 💖
+              </Button>
+
+              <Button
+                variant="outline"
+                onMouseEnter={moveNoButton}
+                onClick={moveNoButton}
+                style={hasMovedNo ? { position: 'fixed', left: noButtonPos.x, top: noButtonPos.y, zIndex: 100 } : {}}
+                className="border-pink-300 text-pink-400 rounded-full px-10 py-6 text-2xl bg-white/50 backdrop-blur-sm transition-all duration-200"
+              >
+                NO 😢
+              </Button>
+            </div>
           </div>
         )}
 
         {step === 'success' && (
-          <div className="space-y-10 animate-fade-in flex flex-col items-center relative py-10 w-full">
+          <div className="animate-fade-in space-y-10 flex flex-col items-center">
             <HeartExplosion />
-            
             <div className="space-y-4">
-              <h1 className="text-5xl md:text-7xl font-bold text-romantic-gradient drop-shadow-sm">
-                I knew it! 😍
+              <h1 className="text-6xl md:text-8xl font-bold text-white romantic-text-glow">
+                I love you forever ❤️🥺
               </h1>
-              <p className="text-3xl md:text-5xl text-primary font-bold">
-                I love you forever Ayushi ❤️
+              <p className="text-2xl text-pink-600 font-bold tracking-widest uppercase">
+                Ayushi, You are my everything
               </p>
             </div>
 
-            <div className="flex gap-6 mt-4">
-               <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
-               <Heart className="text-primary w-12 h-12 fill-primary animate-heart-beat" />
-               <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
-            </div>
-
-            {/* Video Container - Changed aspect-video to a more flexible min-height and max-height */}
-            <div className="relative w-full max-w-3xl min-h-[400px] max-h-[70vh] rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 flex items-center justify-center">
-              
-              {/* Native Video Player - Changed object-cover to object-contain to prevent cropping */}
+            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 bg-black/20 backdrop-blur-md">
               <video 
                 ref={videoRef}
-                id="loveVideo"
                 className={cn(
-                  "w-full h-full max-h-[70vh] object-contain transition-opacity duration-1000",
+                  "w-full h-full object-contain transition-opacity duration-1000",
                   isStarted ? "opacity-100" : "opacity-0"
                 )}
                 onCanPlayThrough={() => setIsVideoLoading(false)}
-                onError={() => setVideoError(true)}
                 loop
                 playsInline
                 controls={isStarted}
-                preload="auto"
               >
                 <source src={VIDEO_SRC} type="video/mp4" />
-                Your browser does not support the video tag.
               </video>
 
-              {/* Loader Overlay */}
               {isVideoLoading && !isStarted && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-30">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                  <p className="text-primary font-medium animate-pulse">Loading our memory...</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100/20 backdrop-blur-md">
+                  <Loader2 className="w-12 h-12 animate-spin text-white mb-2" />
+                  <p className="text-white font-bold">Loading our memory...</p>
                 </div>
               )}
 
-              {/* Start Memory Button Overlay */}
               {!isStarted && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-40 backdrop-blur-[2px] animate-fade-in">
-                   <Button 
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <Button 
                     onClick={handleStartMemory}
-                    className="bg-primary text-white hover:bg-primary/90 rounded-full p-10 flex flex-col gap-3 h-auto shadow-2xl scale-110 active:scale-95 transition-transform"
-                   >
-                     <PlayCircle size={64} />
-                     <span className="text-xl font-bold">Start Memory ❤️</span>
-                   </Button>
-                </div>
-              )}
-
-              {/* Error Fallback */}
-              {videoError && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100 z-50 p-6 text-center">
-                  <Heart className="text-primary mb-4 w-12 h-12" />
-                  <p className="text-primary font-bold text-xl mb-4">Click below to watch our memory ❤️</p>
-                  <a 
-                    href={VIDEO_SRC} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors"
+                    className="bg-white/90 text-pink-500 hover:bg-white rounded-full p-8 flex flex-col gap-2 h-auto shadow-2xl hover:scale-110 transition-transform"
                   >
-                    Open Video Link <ExternalLink size={20} />
-                  </a>
+                    <PlayCircle size={48} />
+                    <span className="text-lg font-bold">Start Memory ❤️</span>
+                  </Button>
                 </div>
               )}
             </div>
           </div>
         )}
 
+      </div>
+      
+      {/* Background Music Hint */}
+      <div className="fixed bottom-4 right-4 text-pink-300/50 text-xs italic pointer-events-none">
+        Aesthetic Love Vibe ✨
       </div>
     </main>
   );
