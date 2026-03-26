@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FloatingHearts } from '@/components/floating-hearts';
 import { ProposalInteractive } from '@/components/proposal-interactive';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,14 @@ const AYUSHI_COMPLIMENTS = [
   "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
 ];
 
+const VIDEO_SRC = "https://drive.google.com/uc?export=download&id=1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi";
+
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
   const [complimentIndex, setComplimentIndex] = useState(0);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [showPlayFallback, setShowPlayFallback] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [isStarted, setIsStarted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const nextCompliment = () => {
     if (complimentIndex < AYUSHI_COMPLIMENTS.length - 1) {
@@ -33,22 +36,18 @@ export default function Home() {
     }
   };
 
+  const handleStartMemory = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = false;
+      videoRef.current.play().catch(err => console.error("Video play failed:", err));
+      setIsStarted(true);
+    }
+  };
+
   useEffect(() => {
-    if (step === 'success') {
-      // Small delay to ensure the iframe has had a moment to mount before we hide the loader
-      const timer = setTimeout(() => {
-        setVideoLoaded(true);
-      }, 4000);
-
-      // If it still feels stuck after 8 seconds, show a manual play button
-      const fallbackTimer = setTimeout(() => {
-        setShowPlayFallback(true);
-      }, 8000);
-
-      return () => {
-        clearTimeout(timer);
-        clearTimeout(fallbackTimer);
-      };
+    // Attempt to preload video when step is 'proposal'
+    if (step === 'proposal' && videoRef.current) {
+      videoRef.current.load();
     }
   }, [step]);
 
@@ -121,43 +120,44 @@ export default function Home() {
             </div>
 
             {/* Video Container */}
-            <div className={cn(
-              "relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 transition-all duration-1000 transform",
-              step === 'success' ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-10 pointer-events-none absolute"
-            )}>
+            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8">
+              
+              {/* Native Video Player */}
+              <video 
+                ref={videoRef}
+                id="loveVideo"
+                className="w-full h-full object-cover"
+                onCanPlayThrough={() => setIsVideoLoading(false)}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls={isStarted}
+              >
+                <source src={VIDEO_SRC} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+
               {/* Loader Overlay */}
-              {!videoLoaded && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-40 transition-opacity duration-500">
+              {isVideoLoading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-30">
                   <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                  <p className="text-primary font-medium animate-pulse">Playing our special memory...</p>
+                  <p className="text-primary font-medium animate-pulse">Loading our memory...</p>
                 </div>
               )}
 
-              {/* Fallback Play Trigger for Browsers that block Autoplay */}
-              {showPlayFallback && !videoLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-fade-in">
+              {/* Start Memory Button Overlay */}
+              {!isStarted && !isVideoLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-40 backdrop-blur-sm animate-fade-in">
                    <Button 
-                    onClick={() => setVideoLoaded(true)}
+                    onClick={handleStartMemory}
                     className="bg-primary text-white hover:bg-primary/90 rounded-full p-10 flex flex-col gap-3 h-auto shadow-2xl scale-110 active:scale-95 transition-transform"
                    >
                      <PlayCircle size={64} />
-                     <span className="text-xl font-bold">Start Memory</span>
+                     <span className="text-xl font-bold">Start Memory ❤️</span>
                    </Button>
                 </div>
               )}
-              
-              {/* Cropped Iframe Wrapper */}
-              <div className="absolute inset-0 w-full h-full">
-                <iframe 
-                  src="https://drive.google.com/file/d/1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi/preview?autoplay=1" 
-                  className="absolute top-[-45px] left-0 w-full h-[calc(100%+90px)] border-none"
-                  allow="autoplay; fullscreen"
-                  title="Special Memory for Ayushi"
-                ></iframe>
-              </div>
-              
-              {/* Shield overlay to prevent accidental clicking of Google Drive UI icons at top */}
-              <div className="absolute top-0 left-0 w-full h-20 pointer-events-none bg-gradient-to-b from-black/20 to-transparent z-10" />
             </div>
           </div>
         )}
