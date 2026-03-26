@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FloatingHearts } from '@/components/floating-hearts';
 import { ProposalInteractive } from '@/components/proposal-interactive';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Loader2, PlayCircle } from 'lucide-react';
+import { Heart, Sparkles, Loader2, PlayCircle, ExternalLink } from 'lucide-react';
 import { HeartExplosion } from '@/components/heart-explosion';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +26,7 @@ export default function Home() {
   const [complimentIndex, setComplimentIndex] = useState(0);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [isStarted, setIsStarted] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const nextCompliment = () => {
@@ -38,16 +39,27 @@ export default function Home() {
 
   const handleStartMemory = () => {
     if (videoRef.current) {
+      setIsVideoLoading(false);
       videoRef.current.muted = false;
-      videoRef.current.play().catch(err => console.error("Video play failed:", err));
-      setIsStarted(true);
+      videoRef.current.play()
+        .then(() => {
+          setIsStarted(true);
+        })
+        .catch(err => {
+          console.error("Video play failed:", err);
+          // If autoplay is blocked, we still mark as started so controls appear
+          setIsStarted(true);
+        });
     }
   };
 
   useEffect(() => {
-    // Attempt to preload video when step is 'proposal'
-    if (step === 'proposal' && videoRef.current) {
-      videoRef.current.load();
+    // Failsafe: Hide loader after 3 seconds no matter what
+    if (step === 'success') {
+      const timer = setTimeout(() => {
+        setIsVideoLoading(false);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [step]);
 
@@ -126,20 +138,23 @@ export default function Home() {
               <video 
                 ref={videoRef}
                 id="loveVideo"
-                className="w-full h-full object-cover"
+                className={cn(
+                  "w-full h-full object-cover transition-opacity duration-1000",
+                  isStarted ? "opacity-100" : "opacity-0"
+                )}
                 onCanPlayThrough={() => setIsVideoLoading(false)}
-                autoPlay
-                muted
+                onError={() => setVideoError(true)}
                 loop
                 playsInline
                 controls={isStarted}
+                preload="auto"
               >
                 <source src={VIDEO_SRC} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
 
-              {/* Loader Overlay */}
-              {isVideoLoading && (
+              {/* Loader Overlay (with timeout) */}
+              {isVideoLoading && !isStarted && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-30">
                   <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
                   <p className="text-primary font-medium animate-pulse">Loading our memory...</p>
@@ -147,8 +162,8 @@ export default function Home() {
               )}
 
               {/* Start Memory Button Overlay */}
-              {!isStarted && !isVideoLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-40 backdrop-blur-sm animate-fade-in">
+              {!isStarted && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-40 backdrop-blur-[2px] animate-fade-in">
                    <Button 
                     onClick={handleStartMemory}
                     className="bg-primary text-white hover:bg-primary/90 rounded-full p-10 flex flex-col gap-3 h-auto shadow-2xl scale-110 active:scale-95 transition-transform"
@@ -156,6 +171,22 @@ export default function Home() {
                      <PlayCircle size={64} />
                      <span className="text-xl font-bold">Start Memory ❤️</span>
                    </Button>
+                </div>
+              )}
+
+              {/* Error Fallback */}
+              {videoError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100 z-50 p-6 text-center">
+                  <Heart className="text-primary mb-4 w-12 h-12" />
+                  <p className="text-primary font-bold text-xl mb-4">Oops! The video is taking a bit too long.</p>
+                  <a 
+                    href={VIDEO_SRC} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors"
+                  >
+                    Open Memory Link <ExternalLink size={20} />
+                  </a>
                 </div>
               )}
             </div>
