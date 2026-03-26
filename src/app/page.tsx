@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { FloatingHearts } from '@/components/floating-hearts';
 import { ProposalInteractive } from '@/components/proposal-interactive';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Loader2 } from 'lucide-react';
+import { Heart, Sparkles, Loader2, PlayCircle } from 'lucide-react';
 import { HeartExplosion } from '@/components/heart-explosion';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +23,7 @@ export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
   const [complimentIndex, setComplimentIndex] = useState(0);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [showPlayFallback, setShowPlayFallback] = useState(false);
 
   const nextCompliment = () => {
     if (complimentIndex < AYUSHI_COMPLIMENTS.length - 1) {
@@ -32,11 +33,22 @@ export default function Home() {
     }
   };
 
-  // We use a small timeout to simulate video "ready" state or just rely on the pre-load
   useEffect(() => {
     if (step === 'success') {
-      const timer = setTimeout(() => setVideoLoaded(true), 1500);
-      return () => clearTimeout(timer);
+      // Small delay to ensure the iframe has had a moment to mount before we hide the loader
+      const timer = setTimeout(() => {
+        setVideoLoaded(true);
+      }, 3000);
+
+      // If it still feels stuck after 8 seconds, show a manual play button
+      const fallbackTimer = setTimeout(() => {
+        setShowPlayFallback(true);
+      }, 8000);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(fallbackTimer);
+      };
     }
   }, [step]);
 
@@ -90,7 +102,7 @@ export default function Home() {
         )}
 
         {step === 'success' && (
-          <div className="space-y-10 animate-fade-in flex flex-col items-center relative py-10">
+          <div className="space-y-10 animate-fade-in flex flex-col items-center relative py-10 w-full">
             <HeartExplosion />
             
             <div className="space-y-4">
@@ -108,36 +120,47 @@ export default function Home() {
                <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
             </div>
 
-            {/* Video Container */}
+            {/* Video Container - We use a wrapper to crop the Google Drive UI */}
             <div className={cn(
               "relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 transition-all duration-1000 transform",
               step === 'success' ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-10 pointer-events-none absolute"
             )}>
+              {/* Loader */}
               {!videoLoaded && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-30">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-40">
                   <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                  <p className="text-primary font-medium animate-pulse">Loading our memory...</p>
+                  <p className="text-primary font-medium animate-pulse">Playing our special memory...</p>
+                </div>
+              )}
+
+              {/* Fallback Play Button if browser blocks autoplay */}
+              {showPlayFallback && !videoLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-50">
+                   <Button 
+                    onClick={() => setVideoLoaded(true)}
+                    className="bg-primary text-white rounded-full p-8 flex flex-col gap-2 h-auto"
+                   >
+                     <PlayCircle size={48} />
+                     <span>Play Memory</span>
+                   </Button>
                 </div>
               )}
               
-              {/* 
-                  Using /preview link for Google Drive. 
-                  Adding &autoplay=1 for direct start.
-                  The wrapper prevents interaction with Drive's "Pop-out" buttons 
-                  by using a transparent layer (pointer-events-none overlay doesn't work for iframe inner clicks, 
-                  so we just style it beautifully).
-              */}
-              {step !== 'welcome' && (
+              <div className="absolute inset-0 w-full h-full">
+                {/* 
+                  To hide the "Pop-out" button and top bar of Google Drive:
+                  We scale the iframe slightly and translate it to hide the edges.
+                */}
                 <iframe 
                   src="https://drive.google.com/file/d/1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi/preview?autoplay=1" 
-                  className="absolute inset-0 w-full h-full border-none"
+                  className="absolute top-[-40px] left-0 w-full h-[calc(100%+80px)] border-none"
                   allow="autoplay; fullscreen"
                   title="Special Memory for Ayushi"
                 ></iframe>
-              )}
+              </div>
               
-              {/* Subtle gradient overlay to hide top bar of Google Drive UI slightly */}
-              <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/20 to-transparent pointer-events-none z-10" />
+              {/* Transparent overlay to prevent clicking the Drive UI icons, but allows full screen via player controls */}
+              <div className="absolute top-0 left-0 w-full h-16 pointer-events-none bg-gradient-to-b from-black/40 to-transparent z-10" />
             </div>
           </div>
         )}
