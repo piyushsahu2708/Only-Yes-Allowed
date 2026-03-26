@@ -7,6 +7,7 @@ import { ProposalInteractive } from '@/components/proposal-interactive';
 import { Button } from '@/components/ui/button';
 import { Heart, Sparkles } from 'lucide-react';
 import { HeartExplosion } from '@/components/heart-explosion';
+import { cn } from '@/lib/utils';
 
 type Step = 'welcome' | 'compliments' | 'proposal' | 'success';
 
@@ -92,16 +93,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Video plays here in the success screen */}
-            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8">
-              <iframe 
-                src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview?autoplay=1" 
-                className="absolute inset-0 w-full h-full"
-                allow="autoplay"
-                title="Special Memory for Ayushi"
-              ></iframe>
-            </div>
-
             <div className="flex gap-6 mt-4">
                <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
                <Heart className="text-primary w-12 h-12 fill-primary animate-heart-beat" />
@@ -109,6 +100,23 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Video is rendered early but hidden to start buffering. 
+            It is revealed only in the success step. */}
+        <div className={cn(
+          "relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 transition-all duration-1000 transform",
+          step === 'success' ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-10 pointer-events-none absolute -bottom-full"
+        )}>
+          {/* We only render the iframe if we have moved past 'welcome' to avoid background noise/loading too early */}
+          {step !== 'welcome' && (
+            <iframe 
+              src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview?autoplay=1" 
+              className="absolute inset-0 w-full h-full"
+              allow="autoplay; fullscreen"
+              title="Special Memory for Ayushi"
+            ></iframe>
+          )}
+        </div>
 
       </div>
     </main>
