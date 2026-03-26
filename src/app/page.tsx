@@ -1,14 +1,14 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FloatingHearts } from '@/components/floating-hearts';
 import { ProposalInteractive } from '@/components/proposal-interactive';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Play } from 'lucide-react';
+import { Heart, Sparkles } from 'lucide-react';
 import { HeartExplosion } from '@/components/heart-explosion';
 
-type Step = 'welcome' | 'compliments' | 'video' | 'proposal' | 'success';
+type Step = 'welcome' | 'compliments' | 'proposal' | 'success';
 
 const AYUSHI_COMPLIMENTS = [
   "Ayushi, tumhara naam hi itna pyara hai ❤️",
@@ -26,7 +26,7 @@ export default function Home() {
     if (complimentIndex < AYUSHI_COMPLIMENTS.length - 1) {
       setComplimentIndex(complimentIndex + 1);
     } else {
-      setStep('video');
+      setStep('proposal');
     }
   };
 
@@ -68,28 +68,7 @@ export default function Home() {
               variant="outline"
               className="border-primary text-primary hover:bg-primary/10 rounded-full px-8"
             >
-              {complimentIndex === AYUSHI_COMPLIMENTS.length - 1 ? "Keep going... ✨" : "Next ❤️"}
-            </Button>
-          </div>
-        )}
-
-        {step === 'video' && (
-          <div className="space-y-8 animate-fade-in flex flex-col items-center">
-            <h2 className="text-3xl font-semibold text-primary">A small memory for us...</h2>
-            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black">
-              <iframe 
-                src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview" 
-                className="absolute inset-0 w-full h-full"
-                allow="autoplay"
-                title="Special Memory for Ayushi"
-              ></iframe>
-            </div>
-            <Button
-              onClick={() => setStep('proposal')}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 rounded-full px-12 h-14 text-xl shadow-xl transition-all hover:scale-105"
-            >
-              I have a question... 💍
+              {complimentIndex === AYUSHI_COMPLIMENTS.length - 1 ? "I have a question... 💍" : "Next ❤️"}
             </Button>
           </div>
         )}
@@ -101,11 +80,9 @@ export default function Home() {
         )}
 
         {step === 'success' && (
-          <div className="space-y-10 animate-fade-in flex flex-col items-center relative">
+          <div className="space-y-10 animate-fade-in flex flex-col items-center relative py-10">
             <HeartExplosion />
-            <div className="bg-white p-8 rounded-full shadow-2xl border-4 border-primary animate-heart-beat">
-               <Heart size={100} fill="#FF1493" className="text-primary" />
-            </div>
+            
             <div className="space-y-4">
               <h1 className="text-5xl md:text-7xl font-bold text-romantic-gradient">
                 I knew it! 😍
@@ -114,7 +91,22 @@ export default function Home() {
                 I love you forever Ayushi ❤️
               </p>
             </div>
-            <Sparkles className="text-yellow-400 w-16 h-16 animate-pulse" />
+
+            {/* Video plays here in the success screen */}
+            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8">
+              <iframe 
+                src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview?autoplay=1" 
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay"
+                title="Special Memory for Ayushi"
+              ></iframe>
+            </div>
+
+            <div className="flex gap-6 mt-4">
+               <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
+               <Heart className="text-primary w-12 h-12 fill-primary animate-heart-beat" />
+               <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
+            </div>
           </div>
         )}
 
