@@ -1,10 +1,10 @@
+
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { LiquidBackground } from '@/components/liquid-background';
 import { CursorSparkles } from '@/components/cursor-sparkles';
 import { HeartParticles } from '@/components/heart-particles';
-import { HeartExplosion } from '@/components/heart-explosion';
 import { Button } from '@/components/ui/button';
 import { Loader2, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -48,17 +48,26 @@ export default function Home() {
   const handleStartMemory = () => {
     if (videoRef.current) {
       videoRef.current.muted = false;
-      videoRef.current.play().then(() => setIsStarted(true));
+      videoRef.current.play().then(() => setIsStarted(true)).catch((e) => {
+        console.error("Video play failed:", e);
+        setIsStarted(true);
+      });
     }
   };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none overflow-hidden">
       <LiquidBackground />
-      <HeartParticles />
-      <CursorSparkles />
+      
+      {/* Hide particles and sparkles in the final video step to keep it clear */}
+      {step !== 'success' && (
+        <>
+          <HeartParticles />
+          <CursorSparkles />
+        </>
+      )}
 
-      <div className="z-10 w-full max-w-2xl text-center space-y-12 transition-all duration-1000">
+      <div className="z-10 w-full max-w-4xl text-center space-y-12 transition-all duration-1000">
         
         {step === 'welcome' && (
           <div className="animate-fade-in space-y-8">
@@ -125,18 +134,17 @@ export default function Home() {
         )}
 
         {step === 'success' && (
-          <div className="animate-fade-in space-y-10 flex flex-col items-center">
-            <HeartExplosion />
-            <div className="space-y-4">
-              <h1 className="text-6xl md:text-8xl font-bold text-white romantic-text-glow">
+          <div className="animate-fade-in space-y-8 flex flex-col items-center">
+            <div className="space-y-2">
+              <h1 className="text-5xl md:text-7xl font-bold text-white romantic-text-glow">
                 I love you forever Ayushi ❤️
               </h1>
-              <p className="text-2xl text-pink-600 font-bold tracking-widest uppercase">
+              <p className="text-xl text-pink-600 font-bold tracking-widest uppercase">
                 You are my everything
               </p>
             </div>
 
-            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 bg-black/20 backdrop-blur-md">
+            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 bg-black/40">
               <video 
                 ref={videoRef}
                 className={cn(
@@ -147,14 +155,15 @@ export default function Home() {
                 loop
                 playsInline
                 controls={isStarted}
+                preload="auto"
               >
                 <source src={VIDEO_SRC} type="video/mp4" />
               </video>
 
               {isVideoLoading && !isStarted && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100/20 backdrop-blur-md">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100/10 backdrop-blur-sm">
                   <Loader2 className="w-12 h-12 animate-spin text-white mb-2" />
-                  <p className="text-white font-bold">Loading our memory...</p>
+                  <p className="text-white font-bold">Preparing our memory...</p>
                 </div>
               )}
 
@@ -176,7 +185,7 @@ export default function Home() {
       </div>
       
       <div className="fixed bottom-4 right-4 text-pink-300/50 text-xs italic pointer-events-none">
-        Interactive Love Vibe ✨
+        A special journey for Ayushi ✨
       </div>
     </main>
   );
