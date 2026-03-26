@@ -38,7 +38,7 @@ export default function Home() {
       // Small delay to ensure the iframe has had a moment to mount before we hide the loader
       const timer = setTimeout(() => {
         setVideoLoaded(true);
-      }, 3000);
+      }, 4000);
 
       // If it still feels stuck after 8 seconds, show a manual play button
       const fallbackTimer = setTimeout(() => {
@@ -120,47 +120,44 @@ export default function Home() {
                <Sparkles className="text-yellow-400 w-12 h-12 animate-pulse" />
             </div>
 
-            {/* Video Container - We use a wrapper to crop the Google Drive UI */}
+            {/* Video Container */}
             <div className={cn(
               "relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 transition-all duration-1000 transform",
               step === 'success' ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-10 pointer-events-none absolute"
             )}>
-              {/* Loader */}
+              {/* Loader Overlay */}
               {!videoLoaded && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-40">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-40 transition-opacity duration-500">
                   <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
                   <p className="text-primary font-medium animate-pulse">Playing our special memory...</p>
                 </div>
               )}
 
-              {/* Fallback Play Button if browser blocks autoplay */}
+              {/* Fallback Play Trigger for Browsers that block Autoplay */}
               {showPlayFallback && !videoLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-50">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-fade-in">
                    <Button 
                     onClick={() => setVideoLoaded(true)}
-                    className="bg-primary text-white rounded-full p-8 flex flex-col gap-2 h-auto"
+                    className="bg-primary text-white hover:bg-primary/90 rounded-full p-10 flex flex-col gap-3 h-auto shadow-2xl scale-110 active:scale-95 transition-transform"
                    >
-                     <PlayCircle size={48} />
-                     <span>Play Memory</span>
+                     <PlayCircle size={64} />
+                     <span className="text-xl font-bold">Start Memory</span>
                    </Button>
                 </div>
               )}
               
+              {/* Cropped Iframe Wrapper */}
               <div className="absolute inset-0 w-full h-full">
-                {/* 
-                  To hide the "Pop-out" button and top bar of Google Drive:
-                  We scale the iframe slightly and translate it to hide the edges.
-                */}
                 <iframe 
                   src="https://drive.google.com/file/d/1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi/preview?autoplay=1" 
-                  className="absolute top-[-40px] left-0 w-full h-[calc(100%+80px)] border-none"
+                  className="absolute top-[-45px] left-0 w-full h-[calc(100%+90px)] border-none"
                   allow="autoplay; fullscreen"
                   title="Special Memory for Ayushi"
                 ></iframe>
               </div>
               
-              {/* Transparent overlay to prevent clicking the Drive UI icons, but allows full screen via player controls */}
-              <div className="absolute top-0 left-0 w-full h-16 pointer-events-none bg-gradient-to-b from-black/40 to-transparent z-10" />
+              {/* Shield overlay to prevent accidental clicking of Google Drive UI icons at top */}
+              <div className="absolute top-0 left-0 w-full h-20 pointer-events-none bg-gradient-to-b from-black/20 to-transparent z-10" />
             </div>
           </div>
         )}
