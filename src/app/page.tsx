@@ -1,20 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { LiquidBackground } from '@/components/liquid-background';
 import { CursorSparkles } from '@/components/cursor-sparkles';
 import { HeartParticles } from '@/components/heart-particles';
 import { HeartExplosion } from '@/components/heart-explosion';
 import { Button } from '@/components/ui/button';
-import { Heart, PlayCircle, Loader2, Sparkles } from 'lucide-react';
+import { Loader2, PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Step = 'welcome' | 'proposal' | 'success';
+type Step = 'welcome' | 'compliments' | 'proposal' | 'success';
+
+const COMPLIMENTS = [
+  "Ayushi, tumhara naam hi itna pyara hai ❤️",
+  "Tumhari eyes bilkul ocean jaisi gehri aur beautiful hain 🌊",
+  "Tumhari smile meri duniya roshan kar deti hai ✨",
+  "Tumhare lips itne soft aur cute hain 💋",
+  "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
+];
 
 const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
 
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
+  const [complimentIndex, setComplimentIndex] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
@@ -22,10 +31,18 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const moveNoButton = () => {
-    const x = Math.random() * (window.innerWidth - 150);
-    const y = Math.random() * (window.innerHeight - 100);
+    const x = Math.max(20, Math.random() * (window.innerWidth - 150));
+    const y = Math.max(20, Math.random() * (window.innerHeight - 100));
     setNoButtonPos({ x, y });
     setHasMovedNo(true);
+  };
+
+  const nextCompliment = () => {
+    if (complimentIndex < COMPLIMENTS.length - 1) {
+      setComplimentIndex(prev => prev + 1);
+    } else {
+      setStep('proposal');
+    }
   };
 
   const handleStartMemory = () => {
@@ -36,7 +53,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none overflow-hidden">
       <LiquidBackground />
       <HeartParticles />
       <CursorSparkles />
@@ -55,10 +72,27 @@ export default function Home() {
             </div>
             
             <Button 
-              onClick={() => setStep('proposal')}
+              onClick={() => setStep('compliments')}
               className="bg-white/80 backdrop-blur-md text-pink-500 hover:bg-white hover:scale-110 transition-all rounded-full px-12 py-8 text-2xl shadow-xl border-2 border-pink-200"
             >
               Click to continue ❤️
+            </Button>
+          </div>
+        )}
+
+        {step === 'compliments' && (
+          <div className="animate-fade-in space-y-12 py-10">
+            <div key={complimentIndex} className="animate-fade-in space-y-8">
+              <p className="text-4xl md:text-6xl font-bold text-white romantic-text-glow leading-relaxed">
+                {COMPLIMENTS[complimentIndex]}
+              </p>
+            </div>
+            
+            <Button 
+              onClick={nextCompliment}
+              className="bg-pink-400/90 hover:bg-pink-500 text-white rounded-full px-12 py-8 text-2xl shadow-xl transition-all hover:scale-105"
+            >
+              {complimentIndex < COMPLIMENTS.length - 1 ? "Next ❤️" : "I have a question... 💖"}
             </Button>
           </div>
         )}
@@ -95,10 +129,10 @@ export default function Home() {
             <HeartExplosion />
             <div className="space-y-4">
               <h1 className="text-6xl md:text-8xl font-bold text-white romantic-text-glow">
-                I love you forever ❤️🥺
+                I love you forever Ayushi ❤️
               </h1>
               <p className="text-2xl text-pink-600 font-bold tracking-widest uppercase">
-                Ayushi, You are my everything
+                You are my everything
               </p>
             </div>
 
@@ -141,9 +175,8 @@ export default function Home() {
 
       </div>
       
-      {/* Background Music Hint */}
       <div className="fixed bottom-4 right-4 text-pink-300/50 text-xs italic pointer-events-none">
-        Aesthetic Love Vibe ✨
+        Interactive Love Vibe ✨
       </div>
     </main>
   );
