@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -75,23 +76,18 @@ export default function Home() {
         {step === 'video' && (
           <div className="space-y-8 animate-fade-in flex flex-col items-center">
             <h2 className="text-3xl font-semibold text-primary">A small memory for us...</h2>
-            <div className="relative w-full max-w-2xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black flex items-center justify-center">
-              {/* This is a placeholder for the user's video */}
-              <div className="text-white flex flex-col items-center space-y-4">
-                <Play size={64} className="text-pink-400 animate-pulse" />
-                <p className="text-lg font-medium">Your special video goes here 🎥</p>
-                <p className="text-xs opacity-50 px-10">Upload your video to the project and replace this placeholder in the code.</p>
-              </div>
-              {/* Once the user has a video, they can use:
-              <video controls autoPlay className="w-full h-full object-cover">
-                <source src="/your-video.mp4" type="video/mp4" />
-              </video>
-              */}
+            <div className="relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black">
+              <iframe 
+                src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview" 
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay"
+                title="Special Memory for Ayushi"
+              ></iframe>
             </div>
             <Button
               onClick={() => setStep('proposal')}
               size="lg"
-              className="bg-primary hover:bg-primary/90 rounded-full px-12 h-14 text-xl shadow-xl"
+              className="bg-primary hover:bg-primary/90 rounded-full px-12 h-14 text-xl shadow-xl transition-all hover:scale-105"
             >
               I have a question... 💍
             </Button>
