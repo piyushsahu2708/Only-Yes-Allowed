@@ -19,7 +19,8 @@ const AYUSHI_COMPLIMENTS = [
   "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
 ];
 
-const VIDEO_SRC = "https://drive.google.com/uc?export=download&id=1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi";
+// Updated to use the reliable GitHub raw link
+const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
 
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
@@ -47,14 +48,14 @@ export default function Home() {
         })
         .catch(err => {
           console.error("Video play failed:", err);
-          // If autoplay is blocked, we still mark as started so controls appear
+          // Failsafe: if play fails, still try to show controls and mark as started
           setIsStarted(true);
         });
     }
   };
 
   useEffect(() => {
-    // Failsafe: Hide loader after 3 seconds no matter what
+    // Failsafe: Always hide loader after 3 seconds in the success screen
     if (step === 'success') {
       const timer = setTimeout(() => {
         setIsVideoLoading(false);
@@ -153,7 +154,7 @@ export default function Home() {
                 Your browser does not support the video tag.
               </video>
 
-              {/* Loader Overlay (with timeout) */}
+              {/* Loader Overlay */}
               {isVideoLoading && !isStarted && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-50 z-30">
                   <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -178,14 +179,14 @@ export default function Home() {
               {videoError && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-pink-100 z-50 p-6 text-center">
                   <Heart className="text-primary mb-4 w-12 h-12" />
-                  <p className="text-primary font-bold text-xl mb-4">Oops! The video is taking a bit too long.</p>
+                  <p className="text-primary font-bold text-xl mb-4">Click below to watch our memory ❤️</p>
                   <a 
                     href={VIDEO_SRC} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors"
                   >
-                    Open Memory Link <ExternalLink size={20} />
+                    Open Video Link <ExternalLink size={20} />
                   </a>
                 </div>
               )}
