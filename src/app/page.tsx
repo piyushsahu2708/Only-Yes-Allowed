@@ -101,16 +101,18 @@ export default function Home() {
           </div>
         )}
 
-        {/* Video is rendered early but hidden to start buffering. 
-            It is revealed only in the success step. */}
+        {/* 
+            Video is rendered early to start buffering in the background. 
+            Google Drive "preview" link with autoplay=1 is used for best results.
+        */}
         <div className={cn(
           "relative w-full max-w-3xl aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white bg-black mt-8 transition-all duration-1000 transform",
           step === 'success' ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-10 pointer-events-none absolute -bottom-full"
         )}>
-          {/* We only render the iframe if we have moved past 'welcome' to avoid background noise/loading too early */}
+          {/* We start loading the iframe after the first click to prevent background sounds immediately, but allow buffering */}
           {step !== 'welcome' && (
             <iframe 
-              src="https://drive.google.com/file/d/1mvpeo-QYBh4X2CFm7MsYG498tsFb-gNi/preview?autoplay=1" 
+              src="https://drive.google.com/file/d/1bdc39q9o0H3wWsjdrICO2M5bWczRGiYi/preview?autoplay=1" 
               className="absolute inset-0 w-full h-full"
               allow="autoplay; fullscreen"
               title="Special Memory for Ayushi"
