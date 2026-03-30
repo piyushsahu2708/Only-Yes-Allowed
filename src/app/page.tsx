@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 type Step = 'name_entry' | 'welcome' | 'compliments' | 'proposal' | 'success';
 
-const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
+const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/Video/main/9EDE64CB-0F75-47E9-AA1E-51DEE1D8B9AF.mp4";
 
 export default function Home() {
   const [step, setStep] = useState<Step>('name_entry');
@@ -68,7 +68,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none overflow-hidden">
       <LiquidBackground />
       
-      {/* Hide particles and sparkles in the final video step to keep it clear */}
+      {/* Hide particles and sparkles in the final success step to keep the video clear */}
       {step !== 'success' && (
         <>
           <HeartParticles />
@@ -135,7 +135,7 @@ export default function Home() {
               onClick={nextCompliment}
               className="bg-pink-400/90 hover:bg-pink-500 text-white rounded-full px-12 py-8 text-2xl shadow-xl transition-all hover:scale-105"
             >
-              {complimentIndex < compliments.length - 1 ? "Next ❤️" : "I have a question... 💖"}
+              {complimentIndex < compliments.length - 1 ? "Next ❤️" : `I have a question, ${name}... 💖`}
             </Button>
           </div>
         )}
