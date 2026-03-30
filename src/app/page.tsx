@@ -1,34 +1,36 @@
 
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { LiquidBackground } from '@/components/liquid-background';
 import { CursorSparkles } from '@/components/cursor-sparkles';
 import { HeartParticles } from '@/components/heart-particles';
 import { Button } from '@/components/ui/button';
-import { Loader2, PlayCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, PlayCircle, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Step = 'welcome' | 'compliments' | 'proposal' | 'success';
-
-const COMPLIMENTS = [
-  "Ayushi, tumhara naam hi itna pyara hai ❤️",
-  "Tumhari eyes bilkul ocean jaisi gehri aur beautiful hain 🌊",
-  "Tumhari smile meri duniya roshan kar deti hai ✨",
-  "Tumhare lips itne soft aur cute hain 💋",
-  "Main jab bhi tumhe dekhta hoon, bas tum me kho jata hoon 💖"
-];
+type Step = 'name_entry' | 'welcome' | 'compliments' | 'proposal' | 'success';
 
 const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/love/main/video.mp4";
 
 export default function Home() {
-  const [step, setStep] = useState<Step>('welcome');
+  const [step, setStep] = useState<Step>('name_entry');
+  const [name, setName] = useState('');
   const [complimentIndex, setComplimentIndex] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
   const [hasMovedNo, setHasMovedNo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const compliments = useMemo(() => [
+    `${name}, tumhara naam hi itna pyara hai ❤️`,
+    `${name}, tumhari eyes bilkul ocean jaisi gehri aur beautiful hain 🌊`,
+    `${name}, tumhari smile meri duniya roshan kar deti hai ✨`,
+    `${name}, tumhare lips itne soft aur cute hain 💋`,
+    `Main jab bhi tumhe dekhta hoon ${name}, bas tum me kho jata hoon 💖`
+  ], [name]);
 
   const moveNoButton = () => {
     const x = Math.max(20, Math.random() * (window.innerWidth - 150));
@@ -38,7 +40,7 @@ export default function Home() {
   };
 
   const nextCompliment = () => {
-    if (complimentIndex < COMPLIMENTS.length - 1) {
+    if (complimentIndex < compliments.length - 1) {
       setComplimentIndex(prev => prev + 1);
     } else {
       setStep('proposal');
@@ -52,6 +54,13 @@ export default function Home() {
         console.error("Video play failed:", e);
         setIsStarted(true);
       });
+    }
+  };
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      setStep('welcome');
     }
   };
 
@@ -69,14 +78,39 @@ export default function Home() {
 
       <div className="z-10 w-full max-w-4xl text-center space-y-12 transition-all duration-1000">
         
+        {step === 'name_entry' && (
+          <div className="animate-fade-in space-y-8 bg-white/30 backdrop-blur-xl p-10 rounded-[3rem] border-2 border-white/50 shadow-2xl max-w-md mx-auto">
+            <div className="flex justify-center">
+              <Heart className="text-pink-500 animate-heart-beat" size={48} fill="currentColor" />
+            </div>
+            <h1 className="text-4xl font-bold text-pink-700 italic">Enter your name 💖</h1>
+            <form onSubmit={handleNameSubmit} className="space-y-6">
+              <Input 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your Name..."
+                className="bg-white/80 border-pink-200 text-center text-xl h-14 rounded-full focus:ring-pink-400 focus:border-pink-400"
+                autoFocus
+              />
+              <Button 
+                type="submit"
+                disabled={!name.trim()}
+                className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-full h-14 text-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+              >
+                Continue ❤️
+              </Button>
+            </form>
+          </div>
+        )}
+
         {step === 'welcome' && (
           <div className="animate-fade-in space-y-8">
             <div className="space-y-4">
               <h1 className="text-5xl md:text-7xl font-bold text-white romantic-text-glow leading-tight">
-                You are the most beautiful part of my life ❤️
+                Hey {name}, this is for you ❤️
               </h1>
               <p className="text-2xl md:text-3xl text-pink-700/80 font-medium italic">
-                Your eyes are like the ocean, your smile is my peace 💕
+                You are the most beautiful part of my life ✨
               </p>
             </div>
             
@@ -93,7 +127,7 @@ export default function Home() {
           <div className="animate-fade-in space-y-12 py-10">
             <div key={complimentIndex} className="animate-fade-in space-y-8">
               <p className="text-4xl md:text-6xl font-bold text-white romantic-text-glow leading-relaxed">
-                {COMPLIMENTS[complimentIndex]}
+                {compliments[complimentIndex]}
               </p>
             </div>
             
@@ -101,7 +135,7 @@ export default function Home() {
               onClick={nextCompliment}
               className="bg-pink-400/90 hover:bg-pink-500 text-white rounded-full px-12 py-8 text-2xl shadow-xl transition-all hover:scale-105"
             >
-              {complimentIndex < COMPLIMENTS.length - 1 ? "Next ❤️" : "I have a question... 💖"}
+              {complimentIndex < compliments.length - 1 ? "Next ❤️" : "I have a question... 💖"}
             </Button>
           </div>
         )}
@@ -109,7 +143,7 @@ export default function Home() {
         {step === 'proposal' && (
           <div className="animate-fade-in space-y-12">
             <h2 className="text-6xl md:text-8xl font-bold text-white romantic-text-glow animate-heart-beat">
-              Do you love me? 💖
+              Do you love me, {name}? 💖
             </h2>
             
             <div className="flex flex-wrap items-center justify-center gap-8 relative min-h-[200px]">
@@ -137,7 +171,7 @@ export default function Home() {
           <div className="animate-fade-in space-y-8 flex flex-col items-center">
             <div className="space-y-2">
               <h1 className="text-5xl md:text-7xl font-bold text-white romantic-text-glow">
-                I love you forever Ayushi ❤️
+                I love you forever {name} ❤️
               </h1>
               <p className="text-xl text-pink-600 font-bold tracking-widest uppercase">
                 You are my everything
@@ -185,7 +219,7 @@ export default function Home() {
       </div>
       
       <div className="fixed bottom-4 right-4 text-pink-300/50 text-xs italic pointer-events-none">
-        A special journey for Ayushi ✨
+        {name ? `A special journey for ${name} ✨` : "A special journey ✨"}
       </div>
     </main>
   );
