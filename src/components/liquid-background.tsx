@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useRef } from 'react';
@@ -17,30 +18,33 @@ export function LiquidBackground() {
     canvas.width = width;
     canvas.height = height;
 
-    const rippleSettings = {
-      damping: 0.98,
-      strength: 512,
-    };
-
-    const size = width * height;
+    // Simulation settings
+    const damping = 0.97;
+    const strength = 1024;
+    let size = width * height;
+    
     let buffer1 = new Int32Array(size);
     let buffer2 = new Int32Array(size);
-    let temp: Int32Array;
 
     const handleResize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
-      const newSize = width * height;
-      buffer1 = new Int32Array(newSize);
-      buffer2 = new Int32Array(newSize);
+      size = width * height;
+      buffer1 = new Int32Array(size);
+      buffer2 = new Int32Array(size);
     };
 
     const drop = (x: number, y: number) => {
-      const index = Math.floor(y) * width + Math.floor(x);
-      if (index >= 0 && index < size) {
-        buffer1[index] = rippleSettings.strength;
+      const radius = 2;
+      for (let j = -radius; j <= radius; j++) {
+        for (let i = -radius; i <= radius; i++) {
+          const idx = Math.floor(y + j) * width + Math.floor(x + i);
+          if (idx >= 0 && idx < size) {
+            buffer1[idx] = strength;
+          }
+        }
       }
     };
 
@@ -62,24 +66,26 @@ export function LiquidBackground() {
       const imgData = ctx.createImageData(width, height);
       const data = imgData.data;
 
+      // Ripple physics
       for (let i = width; i < size - width; i++) {
         buffer2[i] = (
           ((buffer1[i - 1] + buffer1[i + 1] + buffer1[i - width] + buffer1[i + width]) >> 1) - buffer2[i]
         );
-        buffer2[i] = (buffer2[i] * rippleSettings.damping) | 0;
+        buffer2[i] = (buffer2[i] * damping) | 0;
 
-        const shade = buffer2[i];
+        const shade = buffer2[i] >> 3;
         const pixelIdx = i * 4;
         
         // Base pink liquid color: #fff0f6 to #ffdee9
-        // We add the ripple shade to the blue/red channels slightly for reflection
-        data[pixelIdx] = 255 - (shade >> 2);     // Red
-        data[pixelIdx + 1] = 220 - (shade >> 1); // Green
-        data[pixelIdx + 2] = 233 - (shade >> 4); // Blue
-        data[pixelIdx + 3] = 255;                // Alpha
+        // r: 255, g: 240, b: 246 -> r: 255, g: 222, b: 233
+        data[pixelIdx] = Math.min(255, 255 + (shade >> 1));     // Red
+        data[pixelIdx + 1] = Math.max(0, 230 + shade);          // Green
+        data[pixelIdx + 2] = Math.max(0, 240 + (shade << 1));   // Blue
+        data[pixelIdx + 3] = 255;                               // Alpha
       }
 
-      temp = buffer1;
+      // Swap buffers
+      const temp = buffer1;
       buffer1 = buffer2;
       buffer2 = temp;
 
@@ -87,12 +93,13 @@ export function LiquidBackground() {
       requestAnimationFrame(update);
     };
 
-    update();
+    const animationId = requestAnimationFrame(update);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
+      cancelAnimationFrame(animationId);
     };
   }, []);
 
@@ -100,10 +107,10 @@ export function LiquidBackground() {
     <div className="fixed inset-0 z-[-1] bg-[#ffdee9]">
       <canvas
         ref={canvasRef}
-        className="w-full h-full opacity-60"
+        className="w-full h-full opacity-70 scale-105 filter blur-[1px]"
       />
-      {/* Soft overlay gradients for extra dreaminess */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-pink-200/20 pointer-events-none" />
+      {/* Glossy overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-pink-300/10 pointer-events-none" />
     </div>
   );
 }
