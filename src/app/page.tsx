@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { LiquidBackground } from '@/components/liquid-background';
 import { CursorSparkles } from '@/components/cursor-sparkles';
 import { HeartParticles } from '@/components/heart-particles';
@@ -15,6 +15,7 @@ type Step = 'name_entry' | 'welcome' | 'compliments' | 'proposal' | 'success';
 const VIDEO_SRC = "https://raw.githubusercontent.com/piyushsahu2708/Video/main/9EDE64CB-0F75-47E9-AA1E-51DEE1D8B9AF.mp4";
 
 export default function Home() {
+  const [isMounted, setIsMounted] = useState(false);
   const [step, setStep] = useState<Step>('name_entry');
   const [name, setName] = useState('');
   const [complimentIndex, setComplimentIndex] = useState(0);
@@ -23,6 +24,10 @@ export default function Home() {
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
   const [hasMovedNo, setHasMovedNo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const compliments = useMemo(() => [
     `${name}, tumhara naam hi itna pyara hai ❤️`,
@@ -51,7 +56,6 @@ export default function Home() {
     if (videoRef.current) {
       videoRef.current.muted = false;
       videoRef.current.play().then(() => setIsStarted(true)).catch((e) => {
-        console.error("Video play failed:", e);
         setIsStarted(true);
       });
     }
@@ -64,11 +68,14 @@ export default function Home() {
     }
   };
 
+  if (!isMounted) {
+    return <div className="min-h-screen bg-[#ffdee9]" />;
+  }
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 relative select-none overflow-hidden">
       <LiquidBackground />
       
-      {/* Hide particles and sparkles in the final success step to keep the video clear */}
       {step !== 'success' && (
         <>
           <HeartParticles />
