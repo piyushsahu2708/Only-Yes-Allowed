@@ -42,7 +42,7 @@ export function HeartParticles() {
           originalX: x,
           y: canvas.height + Math.random() * canvas.height,
           vx: (Math.random() - 0.5) * 0.5,
-          vy: -(Math.random() * 1.5 + 1), // Faster upward speed
+          vy: -(Math.random() * 0.8 + 0.5), // Reduced speed for a more gentle float
           size: Math.random() * 20 + 15,
           opacity: Math.random() * 0.6 + 0.2,
           emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
